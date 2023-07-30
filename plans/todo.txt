@@ -1,0 +1,18 @@
+0. Authentication (using next auth/mongodb)
+1. Schema for user/notes/board (user has many boards -- boards have many notes)
+
+2. Scrollable Environment for a note board (cork background) -> "canvas" will be a div with a specific pixel dimension with overflow hidden. Then we will allow for scaling it via zoom and dragging the window with a library
+... react draggable library and react pinch pan zoom library
+3. Component to display notes
+4. Drag/Drop Notes
+
+5. CRUD for notes 
+6. Save Location of Notes Somehow to DB so on-load, the user's notes should be where they placed them initially.
+
+7. Ability to place "pins" on notes and link them to other notes graphically
+
+8. New Board Option (but saves your old boards)
+9. User Dashboard to view old boards/user info
+
+10. More styles/allow for colored notes
+11. Image uploads that act like notes

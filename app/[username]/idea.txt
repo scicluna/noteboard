@@ -1,0 +1,2 @@
+Some sort of auth middleware should be here to ensure user actually matches username
+Either that or run something in layout.tsx that amounts to this.
