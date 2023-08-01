@@ -4,6 +4,8 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { connectToDB } from "@/utils/db";
 import User from "@/models/User";
 import bcrypt from 'bcrypt'
+import { JWT } from "next-auth/jwt";
+
 
 const handler = NextAuth({
     providers: [
@@ -23,28 +25,26 @@ const handler = NextAuth({
                 if (!credentials) return null
                 await connectToDB()
 
-                const user = await User.findOne({
-                    email: credentials.email
-                })
-                if (!user) {
-                    console.error("User not found.")
-                    return null
+                try {
+                    const user = await User.findOne({
+                        email: credentials.email
+                    })
+
+                    const passwordMatch = await bcrypt.compare(credentials.password, user.password)
+
+                    return user
+                } catch (error: any) {
+                    throw new Error("Invalid Username or Password")
                 }
-
-                const passwordMatch = await bcrypt.compare(credentials.password, user.password)
-
-                if (!passwordMatch) {
-                    console.error("Invalid password")
-                    return null
-                }
-
-                return user
             }
         })
     ],
     callbacks: {
         async session({ session }) {
             return session
+        },
+        async jwt({ token, user }) {
+            return token
         },
         async signIn({ profile, user }) {
             try {

@@ -1,5 +1,5 @@
-0. Authentication (using next auth/mongodb)
-1. Schema for user/notes/board (user has many boards -- boards have many notes)
+0. Authentication (using next auth/mongodb) -> needs better validation - done
+1. Schema for user/notes/board (user has many boards -- boards have many notes) - done
 
 2. Scrollable Environment for a note board (cork background) -> "canvas" will be a div with a specific pixel dimension with overflow hidden. Then we will allow for scaling it via zoom and dragging the window with a library
 ... react draggable library and react pinch pan zoom library
