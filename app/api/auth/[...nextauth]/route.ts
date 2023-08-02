@@ -5,6 +5,18 @@ import { connectToDB } from "@/utils/db";
 import User from "@/models/User";
 import bcrypt from 'bcrypt'
 
+declare module "next-auth" {
+    interface Session {
+        user?: {
+            name?: string | null
+            email?: string | null
+            image?: string | null
+            id?: string | null
+            online?: boolean | null
+        };
+    }
+}
+
 const handler = NextAuth({
     providers: [
         GoogleProvider({
@@ -47,7 +59,15 @@ const handler = NextAuth({
     ],
     callbacks: {
         async session({ session }) {
-            return session
+            if (!session.user) return session
+            await connectToDB();
+
+            const sessionUser = await User.findOne({
+                email: session.user.email
+            })
+            session.user.id = sessionUser._id.toString();
+
+            return session;
         },
         async jwt({ token, user }) {
             return token

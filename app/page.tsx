@@ -46,7 +46,6 @@ export default function Login() {
     setFormError("")
     e?.preventDefault()
     const res = await signIn(providers!.Credentials.id, { email, password, callbackUrl: "/user", redirect: false })
-    console.log(res)
     if (res?.error) setFormError(res.error)
     if (res?.url) router.push(res.url);
   }
