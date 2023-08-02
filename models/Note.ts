@@ -1,9 +1,8 @@
 import { Schema, model, models } from "mongoose";
 
 const NoteSchema = new Schema({
-    board: {
-        type: Schema.Types.ObjectId,
-        ref: 'Board'
+    boardid: {
+        type: String
     },
     text: {
         type: String

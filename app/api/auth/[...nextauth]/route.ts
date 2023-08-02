@@ -1,4 +1,4 @@
-import NextAuth from "next-auth/next";
+import NextAuth, { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from "next-auth/providers/credentials"
 import { connectToDB } from "@/utils/db";
@@ -12,12 +12,11 @@ declare module "next-auth" {
             email?: string | null
             image?: string | null
             id?: string | null
-            online?: boolean | null
         };
     }
 }
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = ({
     providers: [
         GoogleProvider({
             id: "Google",
@@ -87,7 +86,7 @@ const handler = NextAuth({
                     await User.create({
                         email: userOrProfile.email,
                         nickname: userOrProfile?.name,
-                        image: userOrProfile?.image
+                        image: userOrProfile?.image,
                     })
                 }
                 return true
@@ -97,4 +96,5 @@ const handler = NextAuth({
         }
     }
 })
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }

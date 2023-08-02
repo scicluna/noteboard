@@ -16,10 +16,6 @@ const UserSchema = new Schema({
     image: {
         type: String
     },
-    boards: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Board'
-    }]
 },
     {
         timestamps: true

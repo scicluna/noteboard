@@ -1,14 +1,12 @@
 import { Schema, model, models } from "mongoose";
 
 const BoardSchema = new Schema({
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+    ownerid: {
+        type: String
     },
-    notes: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Note'
-    }]
+    name: {
+        type: String
+    }
 },
     {
         timestamps: true

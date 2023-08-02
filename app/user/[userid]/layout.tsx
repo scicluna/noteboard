@@ -5,6 +5,7 @@ export default function UserLayout({
 }: {
     children: React.ReactNode
 }) {
+    
     return (
         <section className="w-full h-full">
             <NavBar />
