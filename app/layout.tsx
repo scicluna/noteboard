@@ -15,7 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Provider>
-        <body className='w-[100dvw] h-[100dvh] flex items-center justify-center'>{children}</body>
+        <body>
+          <main className='h-[100dvh]'>
+            {children}
+          </main>
+        </body>
       </Provider>
     </html>
   )

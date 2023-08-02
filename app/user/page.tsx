@@ -9,7 +9,10 @@ export default function UserRedirect() {
             return redirect('/')
         }
     })
-    if (!session) return <h1>Loading...</h1>
+    if (!session) return (
+        <main className="h-full w-full flex justify-center items-center">
+            <h1>Loading...</h1>
+        </main >)
 
     return redirect(`/user/${session.user?.id}`)
 }
