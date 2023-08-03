@@ -5,6 +5,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import googleIcon from "@/public/images/google.png"
+import investigatorLogo from "@/public/images/investigatorlogo.png"
 
 export default function Login() {
   const router = useRouter()
@@ -59,6 +60,7 @@ export default function Login() {
   return (
     <main className="h-full w-full flex justify-center items-center">
       <section className="flex flex-col gap-2 items-center justify-center w-1/4">
+        <Image src={investigatorLogo} alt="logo" width={400} height={400} />
         <button type="button" className="outline-gray-300 outline outline-1 flex justify-center items-center p-2 gap-5 bg-gray-50 hover:shadow-md hover:shadow-gray-400 rounded-md w-full" onClick={() => signIn(providers.Google.id, { callbackUrl: "/user" })}>
           <Image src={googleIcon} alt="google" width={20} height={20} />
           <span>Google</span>

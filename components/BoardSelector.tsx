@@ -1,8 +1,7 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import CreateNewBoard from "./CreateNewBoard";
 import { getBoards } from "@/utils/getBoards";
 
-type BoardSelectorProps = {
+export type BoardSelectorProps = {
     user: BoardUser
 }
 
@@ -14,13 +13,13 @@ export type BoardUser = {
 }
 
 export type Board = {
-    owner: string
-    id: string
+    _id: string
+    ownerid: string
     name: string
-    notes: Note[]
 }
 
 export type Note = {
+    boardid: string
     text: string
     image: string
     width: number
@@ -29,18 +28,21 @@ export type Note = {
     left: number
 }
 
+
+
 export default async function BoardSelector({ user }: BoardSelectorProps) {
     const boards: Board[] = await getBoards(user)
 
     return (
-        <section className="h-[90dvh] w-1/4 p-4 relative">
-            <button className="fixed">
-                <FontAwesomeIcon icon={faPlus} width={30} height={30} color="gray" className="hover:text-black" />
-            </button>
-            <div className="flex flex-col gap-4">
+        <section className="h-[90dvh] w-1/4 p-4 relative shadow-sm shadow-gray-300 overflow-auto">
+            <CreateNewBoard user={user} />
+            <div className="flex flex-col gap-4 mt-10">
                 {boards ? boards.map(board => (
-                    <a href={board.id} key={board.id}>
-                        <h1>{board.name}</h1>
+                    <a href={`/user/${user.id}/board/${board._id}`} key={board._id}>
+                        <div className="relative flex justify-center items-center w-full h-24 bg-orange-100 shadow-sm shadow-gray-400">
+                            <p className="font-extrabold">{board.name}</p>
+                            <p className="absolute bottom-0 right-0">Trash</p>
+                        </div>
                     </a>
                 )) : <p>There are no boards yet...</p>}
             </div>
