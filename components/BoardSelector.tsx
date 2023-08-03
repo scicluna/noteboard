@@ -28,11 +28,8 @@ export type Note = {
     left: number
 }
 
-
-
 export default async function BoardSelector({ user }: BoardSelectorProps) {
     const boards: Board[] = await getBoards(user)
-
     return (
         <section className="h-[90dvh] w-1/4 p-4 relative shadow-sm shadow-gray-300 overflow-auto">
             <CreateNewBoard user={user} />

@@ -1,6 +1,7 @@
 'use client'
 import { redirect } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { RedirectType } from 'next/dist/client/components/redirect'
 
 export default function UserRedirect() {
     const { data: session } = useSession({
