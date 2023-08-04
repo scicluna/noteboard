@@ -1,5 +1,6 @@
-import CreateNewBoard from "./CreateNewBoard";
+import CreateNewBoard from "../client/CreateNewBoard";
 import { getBoards } from "@/utils/getBoards";
+import TrashBoard from "../client/TrashBoard";
 
 export type BoardSelectorProps = {
     user: BoardUser
@@ -35,12 +36,14 @@ export default async function BoardSelector({ user }: BoardSelectorProps) {
             <CreateNewBoard user={user} />
             <div className="flex flex-col gap-4 mt-10">
                 {boards ? boards.map(board => (
-                    <a href={`/user/${user.id}/board/${board._id}`} key={board._id}>
-                        <div className="relative flex justify-center items-center w-full h-24 bg-orange-100 shadow-sm shadow-gray-400">
-                            <p className="font-extrabold">{board.name}</p>
-                            <p className="absolute bottom-0 right-0">Trash</p>
-                        </div>
-                    </a>
+                    <div className="relative">
+                        <a href={`/user/${user.id}/board/${board._id}`} key={board._id}>
+                            <div className="flex justify-center items-center w-full h-24 bg-orange-100 shadow-sm shadow-gray-400">
+                                <p className="font-extrabold">{board.name}</p>
+                            </div>
+                        </a>
+                        <TrashBoard user={user} boardid={board._id} />
+                    </div>
                 )) : <p>There are no boards yet...</p>}
             </div>
         </section>

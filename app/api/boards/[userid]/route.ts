@@ -1,15 +1,9 @@
 import { connectToDB } from "@/utils/db";
 import Board from "@/models/Board";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { NextApiRequest, NextApiResponse } from "next";
 
-export async function GET(req: NextApiRequest, { params }: Params) {
+export async function GET(req: Request, { params }: Params) {
     const { userid } = params
-    // const session = await getServerSession(req, res, authOptions)
-    // console.log(session)
-
     connectToDB();
     try {
         const boards = await Board.find({ "ownerid": userid })
@@ -33,5 +27,19 @@ export async function POST(req: Request, { params }: Params) {
         return new Response(JSON.stringify(newBoard), { status: 200 })
     } catch (err) {
         return new Response('Failed to create board', { status: 500 })
+    }
+}
+
+export async function DELETE(req: Request) {
+    const parsedReq = await req.json()
+    const { boardid } = parsedReq
+    connectToDB()
+    try {
+        const deleteBoard = await Board.deleteOne({
+            _id: boardid
+        })
+        return new Response(JSON.stringify(deleteBoard), { status: 200 })
+    } catch (err) {
+        return new Response('Failed to delete board', { status: 500 })
     }
 }
