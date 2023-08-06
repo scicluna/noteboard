@@ -1,4 +1,3 @@
-import { Params } from 'next/dist/shared/lib/router/utils/route-matcher'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import Board from '@/components/client/Board'

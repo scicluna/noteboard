@@ -20,7 +20,8 @@ export type Board = {
 }
 
 export type Note = {
-    id: string
+    id?: string
+    tempid: string
     boardid: string
     text: string
     image?: string

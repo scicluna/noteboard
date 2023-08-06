@@ -4,6 +4,9 @@ const NoteSchema = new Schema({
     boardid: {
         type: String
     },
+    tempid: {
+        type: String
+    },
     text: {
         type: String
     },
@@ -11,16 +14,16 @@ const NoteSchema = new Schema({
         type: String
     },
     width: {
-        type: Number
+        type: String
     },
     height: {
-        type: Number
+        type: String
     },
     top: {
-        type: Number
+        type: String
     },
     left: {
-        type: Number
+        type: String
     }
 },
     {
