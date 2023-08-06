@@ -10,7 +10,7 @@ config.autoAddCss = false; // weird font awesome thing that prevents size issues
 //add options modal
 export default function NavBar() {
     return (
-        <nav className="h-[10dvh] w-full flex p-4 items-center text-xl font-extrabold shadow-sm shadow-gray-300 bg-gray-100">
+        <nav className="h-[10dvh] w-full flex p-4 items-center text-xl font-extrabold shadow-sm shadow-gray-300 bg-gray-100 fixed z-20">
             <div className="w-1/3 flex justify-start">
                 <button >
                     <FontAwesomeIcon icon={faGear} width={30} height={30} color="gray" className="hover:text-gray-400" />

@@ -7,7 +7,7 @@ export default function UserLayout({
 }) {
 
     return (
-        <section className="w-full h-full">
+        <section className="relative w-full h-full">
             <NavBar />
             {children}
         </section>

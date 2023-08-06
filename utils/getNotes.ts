@@ -5,7 +5,7 @@ export async function getNotes(boardid: string) {
     const res = await fetch(`${process.env.URL}/api/notes/${boardid}`, {
         credentials: "include", headers: {
             Cookie: `next-auth.session-token=${cookie}`
-        }
+        }, cache: "no-cache"
     })
     const notes = await res.json()
 

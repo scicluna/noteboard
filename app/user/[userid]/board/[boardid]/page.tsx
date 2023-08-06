@@ -18,6 +18,6 @@ export default async function Canvas({ params }: { params: { userid: string, boa
     )
 
     return (
-        <Board notes={notes} user={session.user} ownerid={userid} name={name} />
+        <Board notes={notes} user={session.user} ownerid={userid} name={name} boardid={boardid} />
     )
 }
