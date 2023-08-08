@@ -10,7 +10,7 @@ export default async function Canvas({ params }: { params: { userid: string, boa
     const { userid, boardid } = params
     const notes = await getNotes(boardid)
     const name = await getBoardName(boardid)
-    const maxZ = Math.max(...notes?.map((note: Note) => note.zIndex), 0);
+    const maxZ = Math.max(notes?.map((note: Note) => note.zIndex), 0);
 
     if (!session || !session.user) return (
         <main className="h-full w-full flex justify-center items-center">

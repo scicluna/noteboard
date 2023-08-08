@@ -3,7 +3,7 @@ import { BoardUser, Note } from "../server/BoardSelector"
 import { useRef, useEffect, useState } from "react"
 import { v4 as uuidv4 } from 'uuid';
 import { newNote } from "@/utils/newNote";
-import NoteCard from "./Note";
+import NoteCard from "./NoteCard";
 import { updateNotePosition } from "@/utils/updateNotePosition";
 import { updateNoteSize } from "@/utils/updateNoteSize";
 
@@ -17,7 +17,7 @@ type BoardProps = {
 }
 
 export default function Board({ notes, user, ownerid, name, boardid, maxZ }: BoardProps) {
-    const [maxZIndex, setMaxZIndex] = useState<number>(maxZ);
+    const [maxZIndex, setMaxZIndex] = useState<number>(maxZ || 0);
     const [dragging, setDragging] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1)
@@ -37,6 +37,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
 
     useEffect(() => {
         const debouncedUpdate = debounce((width: number, height: number, tempId: string) => {
+            if (width === 0 || height === 0) return;
             const updatedNote = allNotes?.find(note => note.tempid === tempId);
 
             if (updatedNote && (updatedNote.width != `${width}px` || updatedNote.height != `${height}px`)) {
@@ -167,6 +168,10 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
         setDragging(false);
     }
 
+    function removeNote(noteToDelete: Note) {
+        setAllNotes(prev => prev!.filter(note => note.tempid !== noteToDelete.tempid))
+    }
+
     return (
         <>
             <div className="fixed top-[12dvh] w-1/4 h-20 left-1/2 -translate-x-1/2 bg-gray-400 z-30 opacity-80 flex justify-center items-center">
@@ -180,6 +185,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
                             note={note}
                             isOwner={isOwner}
                             onDragUpdate={handleDragUpdate}
+                            removeNote={removeNote}
                         />
                     ))}
                 </section>

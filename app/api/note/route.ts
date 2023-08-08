@@ -46,3 +46,16 @@ export async function PUT(req: NextRequest) {
         return new Response(JSON.stringify('Failed to update note'), { status: 500 })
     }
 }
+
+export async function DELETE(req: NextRequest) {
+    connectToDB()
+    try {
+        const parsedReq = await req.json()
+        const { note }: parseNote = parsedReq;
+        await Note.deleteOne({ tempid: note.tempid })
+        return new Response(JSON.stringify('NOTE DELETED'), { status: 200 })
+    } catch (err) {
+        console.error("error", err)
+        return new Response(JSON.stringify('Failed to update note'), { status: 500 })
+    }
+}
