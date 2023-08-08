@@ -7,7 +7,6 @@ import { updateNoteText } from "@/utils/updateNoteText";
 import { updateNotePosition } from "@/utils/updateNotePosition";
 import { updateNoteSize } from "@/utils/updateNoteSize";
 
-
 type BoardProps = {
     notes: Note[]
     user: BoardUser
@@ -87,7 +86,6 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
         };
     }
 
-
     function createNote() {
         if (!isOwner) return
         const left = window.scrollX + window.innerWidth / 2;
@@ -131,26 +129,29 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
                     return note;
                 }
             }));
-
-            // Update the note's position in the database
             const updatedNote = { ...note, left: `${newLeft}px`, top: `${newTop}px` };
             updateNotePosition(updatedNote, isOwner);
         }
-        dragStartPos.current = null; // Reset for next drag
+        dragStartPos.current = null;
     }
 
     function handleWheel(event: React.WheelEvent) {
+        const MAX_ZOOM = 4
+        const MIN_ZOOM = .5
+
         if (zoom >= 4) {
             event.preventDefault();
             event.stopPropagation();
         }
         let newZoom = zoom - event.deltaY * 0.001;
-        newZoom = Math.min(Math.max(.5, newZoom), 4); // Restrict zoom levels between 0.125 to 4
+        newZoom = Math.min(Math.max(MIN_ZOOM, newZoom), MAX_ZOOM)
         setZoom(newZoom);
     }
 
     function handleMouseDown(e: React.MouseEvent) {
         if ((e.target as HTMLElement).classList.contains('note')) return;
+        window.getSelection()?.removeAllRanges();
+        (document.activeElement as HTMLElement).blur()
         setDragging(true);
         setMousePos({ x: e.clientX, y: e.clientY });
     }
@@ -176,8 +177,8 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
             <section ref={containerRef} className="absolute pt-[10dvh] w-[3250px] h-[3250px] bg-black flex items-center justify-center" style={{ visibility: visible ? 'visible' : 'hidden' }}>
                 <section className="absolute w-[3000px] h-[3000px] bg-gray-100 overflow-hidden" style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
                     {allNotes && allNotes.map(note => (
-                        <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left }} className="note absolute" >
-                            <textarea data-tempid={note.tempid} defaultValue={note.text} draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300" id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
+                        <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left }} className="note absolute" draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)}>
+                            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  rounded-lg" id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
                         </div>
                     ))}
                 </section>
