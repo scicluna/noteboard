@@ -3,7 +3,7 @@ import { BoardUser, Note } from "../server/BoardSelector"
 import { useRef, useEffect, useState } from "react"
 import { v4 as uuidv4 } from 'uuid';
 import { newNote } from "@/utils/newNote";
-import { updateNoteText } from "@/utils/updateNoteText";
+import NoteCard from "./Note";
 import { updateNotePosition } from "@/utils/updateNotePosition";
 import { updateNoteSize } from "@/utils/updateNoteSize";
 
@@ -25,8 +25,6 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
     const [visible, setVisible] = useState(false);
     const [allNotes, setAllNotes] = useState<Note[] | null>(notes)
     const containerRef = useRef<HTMLDivElement>(null);
-    const dragStartPos = useRef<{ x: number, y: number, tempid: string } | null>(null);
-
 
     useEffect(() => {
         window.scrollTo((3000 - window.innerWidth) / 2, (3000 - window.innerHeight) / 2)
@@ -115,41 +113,25 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
         newNote(note);
     }
 
-    function handleDragStart(e: React.DragEvent, note: Note) {
-        dragStartPos.current = { x: e.clientX, y: e.clientY, tempid: note.tempid };
+    function handleDragUpdate(note: Note, deltaX: number, deltaY: number) {
+        const originalLeft = parseInt(note.left.slice(0, -2));
+        const originalTop = parseInt(note.top.slice(0, -2));
+
+        const newLeft = originalLeft + deltaX;
+        const newTop = originalTop + deltaY;
         const newZIndex = maxZIndex + 1;
         setMaxZIndex(newZIndex);
         setAllNotes(allNotes!.map((n) => {
             if (n.tempid === note.tempid) {
-                return { ...n, zIndex: newZIndex };
+                return { ...n, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
+            } else {
+                return n;
             }
-            return n;
         }));
+        const updatedNote = { ...note, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
+        updateNotePosition(updatedNote, isOwner);
     }
 
-    function handleDragEnd(e: React.DragEvent, note: Note) {
-        if (dragStartPos.current) {
-            const deltaX = e.clientX - dragStartPos.current.x;
-            const deltaY = e.clientY - dragStartPos.current.y;
-
-            const originalLeft = parseInt(note.left.slice(0, -2));
-            const originalTop = parseInt(note.top.slice(0, -2));
-
-            const newLeft = originalLeft + deltaX;
-            const newTop = originalTop + deltaY;
-
-            setAllNotes(allNotes!.map((note) => {
-                if (note.tempid === dragStartPos.current?.tempid) {
-                    return { ...note, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
-                } else {
-                    return note;
-                }
-            }));
-            const updatedNote = { ...note, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
-            updateNotePosition(updatedNote, isOwner);
-        }
-        dragStartPos.current = null;
-    }
 
     function handleWheel(event: React.WheelEvent) {
         const MAX_ZOOM = 4
@@ -193,9 +175,12 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
             <section ref={containerRef} className="absolute pt-[10dvh] w-[3500px] h-[3250px] bg-black flex items-center justify-center" style={{ visibility: visible ? 'visible' : 'hidden', fontFamily: 'fantasy' }} >
                 <section className="absolute w-[3250px] h-[3000px] bg-gray-100 overflow-hidden" style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
                     {allNotes && allNotes.map(note => (
-                        <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left, zIndex: note.zIndex }} className="note absolute" draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)}>
-                            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  rounded-lg" style={{ fontSize: note.fontSize || '20px' }} id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
-                        </div>
+                        <NoteCard
+                            key={note.tempid}
+                            note={note}
+                            isOwner={isOwner}
+                            onDragUpdate={handleDragUpdate}
+                        />
                     ))}
                 </section>
             </section>
