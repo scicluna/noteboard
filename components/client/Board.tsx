@@ -40,7 +40,6 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
             const updatedNote = allNotes?.find(note => note.tempid === tempId);
 
             if (updatedNote && (updatedNote.width != `${width}px` || updatedNote.height != `${height}px`)) {
-                console.log(width)
                 updatedNote.width = `${width}px`;
                 updatedNote.height = `${height}px`;
                 setAllNotes([...(allNotes || [])]);
@@ -98,6 +97,7 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
             height: "100px",
             left: `${left}px`,
             top: `${top}px`,
+            fontSize: `20px`
         }
         if (allNotes) {
             setAllNotes(prevNotes => [...prevNotes!, note]);
@@ -171,14 +171,14 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
 
     return (
         <>
-            <div className="fixed top-[10dvh] w-full h-20 bg-gray-400 z-30 opacity-80 flex justify-center items-center">
+            <div className="fixed top-[12dvh] w-1/4 h-20 left-1/2 -translate-x-1/2 bg-gray-400 z-30 opacity-80 flex justify-center items-center">
                 <button onClick={createNote}>New Note</button>
             </div>
-            <section ref={containerRef} className="absolute pt-[10dvh] w-[3250px] h-[3250px] bg-black flex items-center justify-center" style={{ visibility: visible ? 'visible' : 'hidden' }}>
-                <section className="absolute w-[3000px] h-[3000px] bg-gray-100 overflow-hidden" style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+            <section ref={containerRef} className="absolute pt-[10dvh] w-[3500px] h-[3250px] bg-black flex items-center justify-center" style={{ visibility: visible ? 'visible' : 'hidden', fontFamily: 'fantasy' }} >
+                <section className="absolute w-[3250px] h-[3000px] bg-gray-100 overflow-hidden" style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
                     {allNotes && allNotes.map(note => (
                         <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left }} className="note absolute" draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)}>
-                            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  rounded-lg" id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
+                            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  rounded-lg" style={{ fontSize: note.fontSize || '15px' }} id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
                         </div>
                     ))}
                 </section>

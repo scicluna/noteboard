@@ -29,6 +29,7 @@ export type Note = {
     height: string
     top: string
     left: string
+    fontSize: string
 }
 
 export default async function BoardSelector({ user }: BoardSelectorProps) {
