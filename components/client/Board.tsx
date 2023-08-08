@@ -46,7 +46,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
                 setAllNotes([...(allNotes || [])]);
                 updateNoteSize(updatedNote, isOwner)
             }
-        }, 250);
+        }, 150);
 
         const resizeObserver = new ResizeObserver(entries => {
             for (let entry of entries) {
