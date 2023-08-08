@@ -27,6 +27,9 @@ const NoteSchema = new Schema({
     },
     fontSize: {
         type: String
+    },
+    zIndex: {
+        type: Number
     }
 },
     {

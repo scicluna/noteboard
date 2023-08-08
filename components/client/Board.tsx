@@ -13,9 +13,11 @@ type BoardProps = {
     ownerid: string
     name: string
     boardid: string
+    maxZ: number
 }
 
-export default function Board({ notes, user, ownerid, name, boardid }: BoardProps) {
+export default function Board({ notes, user, ownerid, name, boardid, maxZ }: BoardProps) {
+    const [maxZIndex, setMaxZIndex] = useState<number>(maxZ);
     const [dragging, setDragging] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1)
@@ -89,6 +91,10 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
         if (!isOwner) return
         const left = window.scrollX + window.innerWidth / 2;
         const top = window.scrollY + window.innerHeight / 2;
+
+        const newZIndex = maxZIndex + 1;
+        setMaxZIndex(newZIndex);
+
         const note = {
             tempid: uuidv4(),
             boardid: boardid,
@@ -97,8 +103,10 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
             height: "100px",
             left: `${left}px`,
             top: `${top}px`,
-            fontSize: `20px`
+            fontSize: `20px`,
+            zIndex: newZIndex
         }
+        setMaxZIndex(note.zIndex);
         if (allNotes) {
             setAllNotes(prevNotes => [...prevNotes!, note]);
         } else {
@@ -109,6 +117,14 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
 
     function handleDragStart(e: React.DragEvent, note: Note) {
         dragStartPos.current = { x: e.clientX, y: e.clientY, tempid: note.tempid };
+        const newZIndex = maxZIndex + 1;
+        setMaxZIndex(newZIndex);
+        setAllNotes(allNotes!.map((n) => {
+            if (n.tempid === note.tempid) {
+                return { ...n, zIndex: newZIndex };
+            }
+            return n;
+        }));
     }
 
     function handleDragEnd(e: React.DragEvent, note: Note) {
@@ -124,12 +140,12 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
 
             setAllNotes(allNotes!.map((note) => {
                 if (note.tempid === dragStartPos.current?.tempid) {
-                    return { ...note, left: `${newLeft}px`, top: `${newTop}px` };
+                    return { ...note, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
                 } else {
                     return note;
                 }
             }));
-            const updatedNote = { ...note, left: `${newLeft}px`, top: `${newTop}px` };
+            const updatedNote = { ...note, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
             updateNotePosition(updatedNote, isOwner);
         }
         dragStartPos.current = null;
@@ -177,8 +193,8 @@ export default function Board({ notes, user, ownerid, name, boardid }: BoardProp
             <section ref={containerRef} className="absolute pt-[10dvh] w-[3500px] h-[3250px] bg-black flex items-center justify-center" style={{ visibility: visible ? 'visible' : 'hidden', fontFamily: 'fantasy' }} >
                 <section className="absolute w-[3250px] h-[3000px] bg-gray-100 overflow-hidden" style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
                     {allNotes && allNotes.map(note => (
-                        <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left }} className="note absolute" draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)}>
-                            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  rounded-lg" style={{ fontSize: note.fontSize || '15px' }} id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
+                        <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left, zIndex: note.zIndex }} className="note absolute" draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)}>
+                            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  rounded-lg" style={{ fontSize: note.fontSize || '20px' }} id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
                         </div>
                     ))}
                 </section>

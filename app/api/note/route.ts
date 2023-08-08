@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
             width: note.width,
             height: note.height,
             top: note.top,
-            left: note.left
+            left: note.left,
+            zIndex: note.zIndex
         })
 
         return new Response(JSON.stringify(newNote), { status: 200 })
@@ -37,7 +38,7 @@ export async function PUT(req: NextRequest) {
         const parsedReq = await req.json()
         const { note }: parseNote = parsedReq
 
-        const updatedNote = await Note.updateOne({ tempid: note.tempid }, { text: note.text, left: note.left, top: note.top, width: note.width, height: note.height })
+        const updatedNote = await Note.updateOne({ tempid: note.tempid }, { text: note.text, left: note.left, top: note.top, width: note.width, height: note.height, zIndex: note.zIndex })
 
         return new Response(JSON.stringify(updatedNote), { status: 200 })
     } catch (err) {

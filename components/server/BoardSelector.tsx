@@ -30,6 +30,7 @@ export type Note = {
     top: string
     left: string
     fontSize: string
+    zIndex: number
 }
 
 export default async function BoardSelector({ user }: BoardSelectorProps) {
