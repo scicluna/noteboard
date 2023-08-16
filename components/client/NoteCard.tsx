@@ -3,7 +3,7 @@ import { Note } from "../server/BoardSelector"
 import { useRef, useState } from 'react'
 import { updateNoteText } from "@/utils/updateNoteText";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faMapPin } from "@fortawesome/free-solid-svg-icons";
 import { deleteNote } from "@/utils/deleteNote";
 
 type NoteProps = {
@@ -11,9 +11,11 @@ type NoteProps = {
     isOwner: boolean;
     onDragUpdate: (note: Note, deltaX: number, deltaY: number) => void;
     removeNote: (note: Note) => void;
+    connectNotes: (note: Note) => void;
+    pinning: boolean
 };
 
-export default function NoteCard({ note, isOwner, onDragUpdate, removeNote }: NoteProps) {
+export default function NoteCard({ note, isOwner, onDragUpdate, removeNote, connectNotes, pinning }: NoteProps) {
     const dragStartPos = useRef<{ x: number, y: number, tempid: string } | null>(null);
     const [options, setOptions] = useState(false)
 
@@ -46,14 +48,20 @@ export default function NoteCard({ note, isOwner, onDragUpdate, removeNote }: No
         deleteNote(note, isOwner)
     }
 
+    function handlePin() {
+        connectNotes(note)
+    }
 
     return (
         <div key={note.tempid} style={{ width: note.width, height: note.height, top: note.top, left: note.left, zIndex: note.zIndex }} className="note absolute rounded-lg" draggable="true" onDragStart={e => handleDragStart(e, note)} onDragEnd={e => handleDragEnd(e, note)} onClick={optionsToggle} onBlur={e => optionsOff(e)}>
-            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className="resize note h-full w-full bg-yellow-300 p-2  outline outline-black  focus:outline-red-600 focus:outline-4 rounded-lg" style={{ fontSize: note.fontSize || '20px' }} id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
+            <textarea data-tempid={note.tempid} defaultValue={note.text} onBlur={(e) => updateNoteText(e, note, isOwner)} className={`resize note h-full w-full ${pinning ? 'bg-yellow-500' : 'bg-yellow-300'}  p-2  outline outline-black  focus:outline-red-600 focus:outline-4 rounded-lg`} style={{ fontSize: note.fontSize || '20px' }} id={`note-${note.tempid}`} contentEditable suppressContentEditableWarning={true} />
             {options &&
                 <div className="note absolute -top-1 right-2 -translate-y-full bg-gray-400 bg-opacity-30 w-16 h-6 flex justify-between items-center">
                     <button onClick={handleDelete} className="note">
                         <FontAwesomeIcon icon={faTrash} width={20} height={20} className="note" />
+                    </button>
+                    <button onClick={handlePin} className="note">
+                        <FontAwesomeIcon icon={faMapPin} width={20} height={20} className="note" />
                     </button>
                 </div>
             }

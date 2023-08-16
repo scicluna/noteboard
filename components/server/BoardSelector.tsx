@@ -31,6 +31,7 @@ export type Note = {
     left: string
     fontSize: string
     zIndex: number
+    connectedNotes?: string[]
 }
 
 export default async function BoardSelector({ user }: BoardSelectorProps) {

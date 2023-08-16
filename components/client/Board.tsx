@@ -24,6 +24,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
     const isOwner = user.id == ownerid
     const [visible, setVisible] = useState(false);
     const [allNotes, setAllNotes] = useState<Note[] | null>(notes)
+    const [pinnedNotes, setPinnedNotes] = useState<Note[]>([])
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -172,6 +173,27 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
         setAllNotes(prev => prev!.filter(note => note.tempid !== noteToDelete.tempid))
     }
 
+    function connectNotes(note: Note) {
+        setPinnedNotes(prevNotes => {
+            if (prevNotes.length < 2) {
+                return [...prevNotes, note];
+            }
+            return prevNotes;
+        });
+    }
+
+    useEffect(() => {
+        if (pinnedNotes.length === 2) {
+            // Connect the two notes logic here...
+            // Make the API call...
+            console.log("Two notes connected!")
+            console.log(pinnedNotes)
+
+            // Clear pinnedNotes after processing
+            setPinnedNotes([]);
+        }
+    }, [pinnedNotes]);
+
     return (
         <>
             <div className="fixed top-[12dvh] w-1/4 h-20 left-1/2 -translate-x-1/2 bg-gray-400 z-30 opacity-80 flex justify-center items-center">
@@ -186,6 +208,8 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
                             isOwner={isOwner}
                             onDragUpdate={handleDragUpdate}
                             removeNote={removeNote}
+                            connectNotes={connectNotes}
+                            pinning={pinnedNotes.some(pinnedNote => pinnedNote.tempid === note.tempid)}
                         />
                     ))}
                 </section>

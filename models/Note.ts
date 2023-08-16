@@ -30,6 +30,9 @@ const NoteSchema = new Schema({
     },
     zIndex: {
         type: Number
+    },
+    connectedNotes: {
+        type: [String]
     }
 },
     {

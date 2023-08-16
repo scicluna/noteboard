@@ -10,9 +10,14 @@
 6. Save Location of Notes Somehow to DB so on-load, the user's notes should be where they placed them initially. - done
 
 7. Ability to place "pins" on notes and link them to other notes graphically
+    HOW? SVG? Drawn each time one of the dependent notes moves or is resized?
+    How do we do this? Some kind of coordinate math.
+    How do we track this? Add a "connected notes" array to the DB entry and on-load draw the initial threads
 
 8. New Board Option (but saves your old boards) - done
 9. User Dashboard to view old boards/user info
 
 10. More styles/allow for colored notes
 11. Image uploads that act like notes
+
+12. Touch ups/Ui
