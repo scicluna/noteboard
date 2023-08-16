@@ -6,6 +6,7 @@ import { newNote } from "@/utils/newNote";
 import NoteCard from "./NoteCard";
 import { updateNotePosition } from "@/utils/updateNotePosition";
 import { updateNoteSize } from "@/utils/updateNoteSize";
+import { updateNoteConnection } from "@/utils/updateNoteConnection";
 
 type BoardProps = {
     notes: Note[]
@@ -104,7 +105,8 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
             left: `${left}px`,
             top: `${top}px`,
             fontSize: `20px`,
-            zIndex: newZIndex
+            zIndex: newZIndex,
+            connectNotes: []
         }
         setMaxZIndex(note.zIndex);
         if (allNotes) {
@@ -184,15 +186,16 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
 
     useEffect(() => {
         if (pinnedNotes.length === 2) {
-            // Connect the two notes logic here...
-            // Make the API call...
-            console.log("Two notes connected!")
-            console.log(pinnedNotes)
-
-            // Clear pinnedNotes after processing
+            const [noteOne, noteTwo] = pinnedNotes
+            postNewConnection(noteOne, noteTwo)
             setPinnedNotes([]);
         }
     }, [pinnedNotes]);
+
+    async function postNewConnection(noteOne: Note, noteTwo: Note) {
+        console.log('hi')
+        await updateNoteConnection(noteOne, noteTwo, isOwner)
+    }
 
     return (
         <>
