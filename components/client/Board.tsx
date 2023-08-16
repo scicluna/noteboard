@@ -8,6 +8,8 @@ import { updateNotePosition } from "@/utils/updateNotePosition";
 import { updateNoteSize } from "@/utils/updateNoteSize";
 import { updateNoteConnection } from "@/utils/updateNoteConnection";
 
+
+
 type BoardProps = {
     notes: Note[]
     user: BoardUser
@@ -27,6 +29,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
     const [allNotes, setAllNotes] = useState<Note[] | null>(notes)
     const [pinnedNotes, setPinnedNotes] = useState<Note[]>([])
     const containerRef = useRef<HTMLDivElement>(null);
+    const drawnConnections = new Set()
 
     useEffect(() => {
         window.scrollTo((3000 - window.innerWidth) / 2, (3000 - window.innerHeight) / 2)
@@ -188,13 +191,17 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
         if (pinnedNotes.length === 2) {
             const [noteOne, noteTwo] = pinnedNotes
             postNewConnection(noteOne, noteTwo)
+            drawNewConnection(noteOne, noteTwo)
             setPinnedNotes([]);
         }
     }, [pinnedNotes]);
 
     async function postNewConnection(noteOne: Note, noteTwo: Note) {
-        console.log('hi')
         await updateNoteConnection(noteOne, noteTwo, isOwner)
+    }
+
+    function drawNewConnection(noteOne: Note, noteTwo: Note) {
+
     }
 
     return (
@@ -203,7 +210,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
                 <button onClick={createNote}>New Note</button>
             </div>
             <section ref={containerRef} className="absolute pt-[10dvh] w-[3500px] h-[3250px] bg-black flex items-center justify-center" style={{ visibility: visible ? 'visible' : 'hidden', fontFamily: 'fantasy' }} >
-                <section className="absolute w-[3250px] h-[3000px] bg-gray-100 overflow-hidden" style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+                <section className={`absolute w-[3250px] h-[3000px] bg-gray-100 overflow-hidden`} style={{ transform: `scale(${zoom})` }} onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
                     {allNotes && allNotes.map(note => (
                         <NoteCard
                             key={note.tempid}
@@ -215,7 +222,53 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
                             pinning={pinnedNotes.some(pinnedNote => pinnedNote.tempid === note.tempid)}
                         />
                     ))}
+                    <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-20">
+                        <g>
+                            {allNotes && allNotes.map(note => (
+                                note?.connectedNotes?.map(connectedNoteId => {
+                                    const connectedNote = allNotes.find(n => n.tempid === connectedNoteId);
+                                    const connectionKey = [note.tempid, connectedNoteId].sort().join('-');
+
+                                    if (connectedNote && !drawnConnections.has(connectionKey)) {
+                                        drawnConnections.add(connectionKey)
+                                        const startX = parseInt(note.left) + parseInt(note.width) / 2;
+                                        const startY = parseInt(note.top) + parseInt(note.height);
+
+                                        const endX = parseInt(connectedNote.left) + parseInt(connectedNote.width) / 2;
+                                        const endY = parseInt(connectedNote.top) + parseInt(connectedNote.height);
+
+                                        const deltaY = Math.abs(endY - startY);
+                                        const deltaX = Math.abs(endX - startX);
+
+                                        // Using Math.max ensures there's always a curve, especially when deltaY is small.
+                                        const offset = Math.max(deltaY, 100); // 100 can be adjusted as per desired curvature
+
+                                        // Control points for the curve
+                                        const controlPoint1X = startX + (deltaX / 3); // Adjusting for x difference
+                                        const controlPoint1Y = startY + offset;
+
+                                        const controlPoint2X = endX - (deltaX / 3); // Adjusting for x difference
+                                        const controlPoint2Y = endY + offset;
+
+                                        const pathData = `M${startX} ${startY} C${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`;
+
+                                        return (
+                                            <path
+                                                key={`${note.tempid}-${connectedNoteId}`}
+                                                d={pathData}
+                                                stroke="black"
+                                                strokeWidth="2"
+                                                fill="none"
+                                            />
+                                        );
+                                    }
+                                    return null;
+                                })
+                            ))}
+                        </g>
+                    </svg>
                 </section>
+
             </section>
         </>
     )

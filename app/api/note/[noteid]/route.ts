@@ -16,10 +16,10 @@ export async function PUT(req: NextRequest, { params }: Params) {
         const { note }: parseNote = parsedReq
 
         if (note?.connectedNotes) {
-            const updatedNote = await Note.updateOne({ tempid: noteid }, { connectedNotes: [...note.connectedNotes, note] })
+            const updatedNote = await Note.updateOne({ tempid: noteid }, { connectedNotes: [...note.connectedNotes, note.tempid] })
             return new Response(JSON.stringify(updatedNote), { status: 200 })
         } else {
-            const updatedNote = await Note.updateOne({ tempid: noteid }, { connectedNotes: [note] })
+            const updatedNote = await Note.updateOne({ tempid: noteid }, { connectedNotes: [note.tempid] })
             return new Response(JSON.stringify(updatedNote), { status: 200 })
         }
     } catch (err) {
