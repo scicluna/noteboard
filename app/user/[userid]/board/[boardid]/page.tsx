@@ -4,11 +4,13 @@ import Board from '@/components/client/Board'
 import { getBoardName } from '@/utils/getBoardName'
 import { getNotes } from '@/utils/getNotes'
 import { Note } from '@/components/server/BoardSelector'
+import { getConnections } from '@/utils/getConnections'
 
 export default async function Canvas({ params }: { params: { userid: string, boardid: string } }) {
     const session = await getServerSession(authOptions)
     const { userid, boardid } = params
     const notes = await getNotes(boardid)
+    const connections = await getConnections(notes)
     const name = await getBoardName(boardid)
     const maxZ = Math.max(notes?.map((note: Note) => note.zIndex), 0);
 
@@ -19,6 +21,6 @@ export default async function Canvas({ params }: { params: { userid: string, boa
     )
 
     return (
-        <Board notes={notes} user={session.user} ownerid={userid} name={name} boardid={boardid} maxZ={maxZ} />
+        <Board notes={notes} user={session.user} ownerid={userid} name={name} boardid={boardid} maxZ={maxZ} connections={connections} />
     )
 }

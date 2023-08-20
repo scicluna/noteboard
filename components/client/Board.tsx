@@ -7,6 +7,7 @@ import NoteCard from "./NoteCard";
 import { updateNotePosition } from "@/utils/updateNotePosition";
 import { updateNoteSize } from "@/utils/updateNoteSize";
 import { updateNoteConnection } from "@/utils/updateNoteConnection";
+import { Connection } from "@/utils/getConnections";
 
 
 
@@ -17,9 +18,11 @@ type BoardProps = {
     name: string
     boardid: string
     maxZ: number
+    connections: Connection[]
 }
 
-export default function Board({ notes, user, ownerid, name, boardid, maxZ }: BoardProps) {
+export default function Board({ notes, user, ownerid, name, boardid, maxZ, connections }: BoardProps) {
+    const [allConnections, setAllConnections] = useState<Connection[]>(connections);
     const [maxZIndex, setMaxZIndex] = useState<number>(maxZ || 0);
     const [dragging, setDragging] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -30,6 +33,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
     const [pinnedNotes, setPinnedNotes] = useState<Note[]>([])
     const containerRef = useRef<HTMLDivElement>(null);
     const drawnConnections = new Set()
+    drawnConnections.clear()
 
     useEffect(() => {
         window.scrollTo((3000 - window.innerWidth) / 2, (3000 - window.innerHeight) / 2)
@@ -120,7 +124,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
         newNote(note);
     }
 
-    function handleDragUpdate(note: Note, deltaX: number, deltaY: number) {
+    async function handleDragUpdate(note: Note, deltaX: number, deltaY: number) {
         const originalLeft = parseInt(note.left.slice(0, -2));
         const originalTop = parseInt(note.top.slice(0, -2));
 
@@ -136,7 +140,8 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
             }
         }));
         const updatedNote = { ...note, left: `${newLeft}px`, top: `${newTop}px`, zIndex: maxZIndex };
-        updateNotePosition(updatedNote, isOwner);
+        await updateNotePosition(updatedNote, isOwner);
+        redrawConnections(updatedNote);
     }
 
 
@@ -200,8 +205,69 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
         await updateNoteConnection(noteOne, noteTwo, isOwner)
     }
 
-    function drawNewConnection(noteOne: Note, noteTwo: Note) {
+    function generateConnectionPath(note: Note, connectedNote: Note): JSX.Element | null {
+        const connectionKey = [note.tempid, connectedNote.tempid].sort().join('-');
 
+        if (!drawnConnections.has(connectionKey)) {
+            drawnConnections.add(connectionKey)
+            const startX = parseInt(note.left) + parseInt(note.width) / 2;
+            const startY = parseInt(note.top) + parseInt(note.height);
+
+            const endX = parseInt(connectedNote.left) + parseInt(connectedNote.width) / 2;
+            const endY = parseInt(connectedNote.top) + parseInt(connectedNote.height);
+
+            const deltaY = Math.abs(endY - startY);
+            const deltaX = Math.abs(endX - startX);
+            const offset = Math.max(deltaY, 100);
+
+            const controlPoint1X = startX + (deltaX / 3);
+            const controlPoint1Y = startY + offset;
+
+            const controlPoint2X = endX - (deltaX / 3);
+            const controlPoint2Y = endY + offset;
+
+            const pathData = `M${startX} ${startY} C${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`;
+
+            return (
+                <path
+                    key={`${note.tempid}-${connectedNote.tempid}`}
+                    d={pathData}
+                    stroke="black"
+                    strokeWidth="2"
+                    fill="none"
+                />
+            );
+        }
+        return null;
+    }
+
+    function drawNewConnection(noteOne: Note, noteTwo: Note) {
+        setAllConnections(prevConnections => [...prevConnections, { noteOne, noteTwo }]);
+    }
+
+    function redrawConnections(updatedNote: Note) {
+        // Filter out the connections that involve the moved note
+        const filteredConnections = allConnections.filter(connection =>
+            connection.noteOne.tempid !== updatedNote.tempid && connection.noteTwo.tempid !== updatedNote.tempid
+        );
+
+        // Find the connections that involve the moved note
+        const relatedConnections = allConnections.filter(connection =>
+            connection.noteOne.tempid === updatedNote.tempid || connection.noteTwo.tempid === updatedNote.tempid
+        );
+
+        // Update the connections involving the moved note
+        const updatedConnections = relatedConnections.map(connection => {
+            return {
+                noteOne: connection.noteOne.tempid === updatedNote.tempid ? updatedNote : connection.noteOne,
+                noteTwo: connection.noteTwo.tempid === updatedNote.tempid ? updatedNote : connection.noteTwo
+            };
+        });
+
+        console.log(updatedConnections)
+
+        // Combine the filtered and updated connections and set them to state
+        setAllConnections([...filteredConnections, ...updatedConnections]);
     }
 
     return (
@@ -224,47 +290,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ }: Boa
                     ))}
                     <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-20">
                         <g>
-                            {allNotes && allNotes.map(note => (
-                                note?.connectedNotes?.map(connectedNoteId => {
-                                    const connectedNote = allNotes.find(n => n.tempid === connectedNoteId);
-                                    const connectionKey = [note.tempid, connectedNoteId].sort().join('-');
-
-                                    if (connectedNote && !drawnConnections.has(connectionKey)) {
-                                        drawnConnections.add(connectionKey)
-                                        const startX = parseInt(note.left) + parseInt(note.width) / 2;
-                                        const startY = parseInt(note.top) + parseInt(note.height);
-
-                                        const endX = parseInt(connectedNote.left) + parseInt(connectedNote.width) / 2;
-                                        const endY = parseInt(connectedNote.top) + parseInt(connectedNote.height);
-
-                                        const deltaY = Math.abs(endY - startY);
-                                        const deltaX = Math.abs(endX - startX);
-
-                                        // Using Math.max ensures there's always a curve, especially when deltaY is small.
-                                        const offset = Math.max(deltaY, 100); // 100 can be adjusted as per desired curvature
-
-                                        // Control points for the curve
-                                        const controlPoint1X = startX + (deltaX / 3); // Adjusting for x difference
-                                        const controlPoint1Y = startY + offset;
-
-                                        const controlPoint2X = endX - (deltaX / 3); // Adjusting for x difference
-                                        const controlPoint2Y = endY + offset;
-
-                                        const pathData = `M${startX} ${startY} C${controlPoint1X} ${controlPoint1Y}, ${controlPoint2X} ${controlPoint2Y}, ${endX} ${endY}`;
-
-                                        return (
-                                            <path
-                                                key={`${note.tempid}-${connectedNoteId}`}
-                                                d={pathData}
-                                                stroke="black"
-                                                strokeWidth="2"
-                                                fill="none"
-                                            />
-                                        );
-                                    }
-                                    return null;
-                                })
-                            ))}
+                            {allConnections.map(connection => generateConnectionPath(connection.noteOne, connection.noteTwo))}
                         </g>
                     </svg>
                 </section>
