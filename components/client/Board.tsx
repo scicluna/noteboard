@@ -52,6 +52,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ, conne
             if (updatedNote && (updatedNote.width != `${width}px` || updatedNote.height != `${height}px`)) {
                 updatedNote.width = `${width}px`;
                 updatedNote.height = `${height}px`;
+                redrawConnections(updatedNote)
                 setAllNotes([...(allNotes || [])]);
                 updateNoteSize(updatedNote, isOwner)
             }
@@ -143,7 +144,6 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ, conne
         await updateNotePosition(updatedNote, isOwner);
         redrawConnections(updatedNote);
     }
-
 
     function handleWheel(event: React.WheelEvent) {
         const MAX_ZOOM = 4
@@ -283,6 +283,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ, conne
                             removeNote={removeNote}
                             connectNotes={connectNotes}
                             pinning={pinnedNotes.some(pinnedNote => pinnedNote.tempid === note.tempid)}
+                            redrawConnections={redrawConnections}
                         />
                     ))}
                     <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-20">
