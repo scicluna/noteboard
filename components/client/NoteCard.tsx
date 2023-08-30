@@ -65,14 +65,14 @@ export default function NoteCard({ note, isOwner, onDragUpdate, removeNote, conn
                             <FontAwesomeIcon icon={faMapPin} width={20} height={20} className="note" />
                         </button>
                     </div>
-                    <ResizingHandle direction="left" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="right" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="top" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="bottom" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="top-left" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="top-right" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="bottom-left" onResize={/* ...handling logic... */} />
-                    <ResizingHandle direction="bottom-right" onResize={/* ...handling logic... */} />
+                    <ResizingHandle direction="left" onResize={() => { }} />
+                    <ResizingHandle direction="right" onResize={() => { }} />
+                    <ResizingHandle direction="top" onResize={() => { }} />
+                    <ResizingHandle direction="bottom" onResize={() => { }} />
+                    <ResizingHandle direction="top-left" onResize={() => { }} />
+                    <ResizingHandle direction="top-right" onResize={() => { }} />
+                    <ResizingHandle direction="bottom-left" onResize={() => { }} />
+                    <ResizingHandle direction="bottom-right" onResize={() => { }} />
                 </>
             }
         </div>
@@ -105,9 +105,46 @@ function ResizingHandle({ direction, onResize }: { direction: ResizingDirection,
         window.addEventListener('mouseup', handleMouseUp);
     };
 
+    let cssResize: string = `absolute bg-black w-2 h-2 transform`;
+    switch (direction) {
+        case "left": {
+            cssResize += ` -left-3 top-1/2 -translate-y-1/2 cursor-ew-resize`;
+            break;
+        }
+        case "right": {
+            cssResize += ` -right-3 top-1/2 -translate-y-1/2 cursor-ew-resize`;
+            break;
+        }
+        case "top": {
+            cssResize += ` left-1/2 -top-3 -translate-x-1/2 cursor-ns-resize`;
+            break;
+        }
+        case "bottom": {
+            cssResize += ` left-1/2 -bottom-3 -translate-x-1/2 cursor-ns-resize`;
+            break;
+        }
+        case "top-left": {
+            cssResize += ` -left-3 -top-3 cursor-nwse-resize`;
+            break;
+        }
+        case "top-right": {
+            cssResize += ` -right-3 -top-3 cursor-nesw-resize`;
+            break;
+        }
+        case "bottom-left": {
+            cssResize += ` -left-3 -bottom-3 cursor-nesw-resize`;
+            break;
+        }
+        case "bottom-right": {
+            cssResize += ` -right-3 -bottom-3 cursor-nwse-resize`;
+            break;
+        }
+        default: return "";
+    }
+
     return (
         <div
-            className={`resize-handle ${direction}`}
+            className={cssResize}
             draggable="true"
             onDragStart={handleDragStart}
         />
