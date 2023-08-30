@@ -208,7 +208,7 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ, conne
     function generateConnectionPath(note: Note, connectedNote: Note): JSX.Element | null {
         const connectionKey = [note.tempid, connectedNote.tempid].sort().join('-');
 
-        if (!drawnConnections.has(connectionKey)) {
+        if (!drawnConnections.has(connectionKey) && note.tempid !== connectedNote.tempid) {
             drawnConnections.add(connectionKey)
             const startX = parseInt(note.left) + parseInt(note.width) / 2;
             const startY = parseInt(note.top) + parseInt(note.height);
@@ -263,9 +263,6 @@ export default function Board({ notes, user, ownerid, name, boardid, maxZ, conne
                 noteTwo: connection.noteTwo.tempid === updatedNote.tempid ? updatedNote : connection.noteTwo
             };
         });
-
-        console.log(updatedConnections)
-
         // Combine the filtered and updated connections and set them to state
         setAllConnections([...filteredConnections, ...updatedConnections]);
     }
