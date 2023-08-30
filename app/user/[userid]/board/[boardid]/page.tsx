@@ -10,7 +10,7 @@ export default async function Canvas({ params }: { params: { userid: string, boa
     const session = await getServerSession(authOptions)
     const { userid, boardid } = params
     const notes = await getNotes(boardid)
-    const connections = await getConnections(notes)
+    const connections = getConnections(notes)
     const name = await getBoardName(boardid)
     const maxZ = Math.max(notes?.map((note: Note) => note.zIndex), 0);
 

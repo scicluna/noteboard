@@ -8,6 +8,8 @@ export type Connection = {
 export function getConnections(notes: Note[]) {
     const connections: Connection[] = [];
 
+    if (!notes) return []
+
     notes.forEach(note => {
         note.connectedNotes?.forEach(connectedNoteId => {
             const connectedNote = notes.find(n => n.tempid === connectedNoteId);
